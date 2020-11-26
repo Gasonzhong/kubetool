@@ -1,0 +1,83 @@
+// package main
+
+// import (
+// 	"fmt"
+// 	"kubetool/src/res"
+// 	"kubetool/src/res/daemonset"
+// 	"kubetool/src/res/deployment"
+// 	"kubetool/src/res/statefulset"
+// 	"os"
+// 	"strings"
+// 	"time"
+// )
+
+// func main() {
+// 	fmt.Println("KubeReady 0.2.20200915-cg")
+
+// 	// config := res.ParseFlag()
+
+// 	configs := res.ParseFlags()
+// 	for _, cfg := range configs {
+// 		if len(strings.TrimSpace(cfg.ResourceName)) == 0 {
+// 			continue
+// 		}
+// 		fmt.Printf("---\n#execute:\n%s\n", cfg.String())
+// 		probeReady(cfg)
+// 	}
+
+// }
+
+// func probeReady(config res.KubeReadyConfiguration) {
+// 	res.DebugMode = config.Debug
+// 	var probe res.ReadyProbe
+// 	var rt = strings.ToLower(config.ResourceType)
+// 	if rt == "deployment" {
+// 		probe = deployment.NewClientDeploymentReadyProbe()
+// 	}
+// 	if rt == "statefulset" {
+// 		probe = statefulset.NewClientStatefulSetProbe()
+// 	}
+// 	if rt == "daemonset" {
+// 		probe = daemonset.NewClientDaemonsetProbe()
+// 	}
+
+// 	ready := false
+// 	var err error = nil
+// 	loopInterval := time.Second * time.Duration(config.IntervalSecond)
+// 	deadlineTime := time.Now().Add(time.Second * time.Duration(config.Timeout))
+// 	for {
+// 		if deadlineTime.Before(time.Now()) {
+// 			break
+// 		}
+// 		ready, err = probe.IsReady(config)
+// 		if ready || err != nil {
+// 			break
+// 		}
+// 		var nextWait time.Duration = 0
+// 		nextWait = deadlineTime.Sub(time.Now())
+// 		if nextWait < 0 {
+// 			break
+// 		}
+// 		if nextWait > loopInterval {
+// 			nextWait = loopInterval
+// 		}
+// 		// fmt.Println("nextWait", nextWait)
+// 		<-time.After(nextWait)
+
+// 	}
+// 	if ready {
+// 		fmt.Println("status: ok")
+// 		return
+// 	}
+// 	var exitCode int
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		exitCode = 1
+// 	} else {
+// 		fmt.Println("timeout")
+// 		exitCode = 2
+// 	}
+// 	fmt.Println(probe.Diagnosis(config))
+
+// 	os.Exit(exitCode)
+// }
